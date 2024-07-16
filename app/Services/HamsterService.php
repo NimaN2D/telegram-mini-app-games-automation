@@ -9,6 +9,7 @@ class HamsterService
 {
     protected string $baseUrl;
     protected string $authToken;
+    protected array $syncData = [];
     protected array $upgrades = [];
     protected array $purchasedUpgrades = [];
 
@@ -37,7 +38,7 @@ class HamsterService
         });
     }
 
-    public function sync(): array
+    public function sync(): void
     {
         $response = Http::withHeaders([
             'Authorization' => "Bearer {$this->authToken}",
@@ -45,11 +46,11 @@ class HamsterService
         ])->post("{$this->baseUrl}/clicker/sync");
 
         if ($response->successful()) {
-            return $response->json();
+            $this->syncData = $response->json();
+        } else {
+            Log::error('Sync failed', ['status' => $response->status(), 'body' => $response->body()]);
+            throw new \Exception('Sync failed');
         }
-
-        Log::error('Sync failed', ['status' => $response->status(), 'body' => $response->body()]);
-        throw new \Exception('Sync failed');
     }
 
     public function tap(int $count, int $availableTaps): array
@@ -152,8 +153,32 @@ class HamsterService
         throw new \Exception('Buy Boost failed');
     }
 
-    public function evaluateAndBuyUpgrades(array $upgrades, float $balanceCoins): array
+    public function handleBoosts(array $boosts): void
     {
+        foreach ($boosts as $boost) {
+            if ($boost['id'] === 'BoostFullAvailableTaps' && $boost['cooldownSeconds'] === 0) {
+                $this->buyBoost($boost['id']);
+            }
+        }
+    }
+
+    public function handleTaps(): void
+    {
+        $availableTaps = $this->syncData['clickerUser']['availableTaps'];
+        $earnPerTap = $this->syncData['clickerUser']['earnPerTap'];
+        $totalTaps = 0;
+        while ($availableTaps > 0) {
+            $count = min($earnPerTap, rand(8, 125));
+            $tapResult = $this->tap($count, $availableTaps);
+            $availableTaps -= $count;
+            $totalTaps += $count;
+        }
+        Log::info("Total Taps Made: {$totalTaps}");
+    }
+
+    public function evaluateAndBuyUpgrades(array $upgrades): array
+    {
+        $balanceCoins = $this->syncData['clickerUser']['balanceCoins'];
         $this->purchasedUpgrades = [];
         $spendPercentage = config('hamster.spend_percentage', 1);
         $minBalance = config('hamster.min_balance', 0);
@@ -180,8 +205,11 @@ class HamsterService
                 continue;
             }
 
-            if (isset($upgrade['condition']) && !$this->purchaseDependency($upgrade['condition'], $finalBudget)) {
-                continue;
+            if (isset($upgrade['condition'])) {
+                $conditionValid = $this->validateConditionFormat($upgrade['condition']);
+                if (!$conditionValid || !$this->purchaseDependency($upgrade['condition'], $finalBudget)) {
+                    continue;
+                }
             }
 
             if ($upgrade['price'] == 0) {
@@ -214,8 +242,8 @@ class HamsterService
 
     private function purchaseDependency(array $condition, float &$budget): bool
     {
-        if (!isset($condition['upgradeId']) || !isset($condition['level'])) {
-            Log::error("Invalid condition format", ['condition' => $condition]);
+        $validCondition = $this->validateConditionFormat($condition);
+        if (!$validCondition) {
             return false;
         }
 
@@ -262,6 +290,15 @@ class HamsterService
             }
         }
 
+        return true;
+    }
+
+    private function validateConditionFormat(array $condition): bool
+    {
+        if (!isset($condition['upgradeId']) || !isset($condition['level'])) {
+            Log::error("Invalid condition format", ['condition' => $condition]);
+            return false;
+        }
         return true;
     }
 
