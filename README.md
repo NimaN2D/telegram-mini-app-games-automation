@@ -15,8 +15,8 @@ This Laravel 11 project automates the Hamster Kombat Game by handling taps and p
 
 1. **Clone the Repository:**
     ```bash
-    git clone https://github.com/your-repo/hamster-kombat-game.git
-    cd hamster-kombat-game
+    git clone https://github.com/NimaN2D/telegram-web-game-hamster-auto-play.git
+    cd telegram-web-game-hamster-auto-play
     ```
 
 2. **Install Dependencies:**
@@ -52,3 +52,7 @@ You can run the command manually to play the game:
 
 ```bash
 php artisan play:hamster
+```
+
+### Disclaimer 
+This project is intended for educational and personal use only. Using this automation tool in the Hamster Kombat Game might violate the game's terms of service. Use at your own risk. The developers of this project are not responsible for any consequences, including but not limited to being banned from the game.
