@@ -37,8 +37,8 @@ class PlayHamsterCommand extends Command
                 ->through([
                     Authenticate::class,
                     Sync::class,
-                    HandleTaps::class,
                     HandleBoosts::class,
+                    HandleTaps::class,
                     EvaluateAndBuyUpgrades::class,
                 ])
                 ->then(function ($hamsterService) {
