@@ -3,10 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Pipes\Hamster\Authenticate;
-use App\Pipes\Hamster\EvaluateAndBuyUpgrades;
 use App\Pipes\Hamster\HandleBoosts;
 use App\Pipes\Hamster\HandleStreakDaysTask;
 use App\Pipes\Hamster\HandleTaps;
+use App\Pipes\Hamster\HandleUpgrades;
 use App\Pipes\Hamster\Sync;
 use Illuminate\Console\Command;
 use App\Services\HamsterService;
@@ -41,7 +41,7 @@ class PlayHamsterCommand extends Command
                     Sync::class,
                     HandleBoosts::class,
                     HandleTaps::class,
-                    EvaluateAndBuyUpgrades::class,
+                    HandleUpgrades::class,
                 ])
                 ->then(function ($hamsterService) {
                     $this->info('Hamster Kombat automation completed.');
