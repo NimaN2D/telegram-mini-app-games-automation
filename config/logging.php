@@ -73,6 +73,16 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'hourly' => [
+            'driver' => 'custom',
+            'via' => App\Logging\HourlyLogger::class,
+        ],
+
+        'fifteen_minute' => [
+            'driver' => 'custom',
+            'via' => App\Logging\FifteenMinuteLogger::class,
+        ],
+
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),
