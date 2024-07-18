@@ -7,9 +7,6 @@ This Laravel 11 project automates the Hamster Kombat Game by handling taps and p
 ### Prerequisites
 
 - Docker & Docker Compose
-- Laravel Sail
-- PHP 8.2 or higher
-- Composer
 
 ### Installation
 
@@ -54,21 +51,39 @@ This Laravel 11 project automates the Hamster Kombat Game by handling taps and p
     7. Tap one time in the game and then open the Developer Tools (`F12`) again. Go to the Network tab and look for a request named `auth-by-telegram-webapp`.
     8. From the payload of this request, copy the `initDataRaw` and `fingerprint` variables and set them in your `.env` file.
 
+
 5. **Docker Setup:**
     ```bash
-    ./vendor/bin/sail up
-    ./vendor/bin/sail artisan migrate
+    docker-compose up -d --build
     ```
+   
+6. **Install Dependencies:**
+    ```bash
+   docker-compose exec hamster composer install
+   ```
 
 ### Usage
-
-#### Running the Command
-
-You can run the command manually to play the game:
+The service will start automatically when the Docker containers are up. If you need to manually run the command to play the game, use:
 
 ```bash
-php artisan play:hamster
+docker-compose exec hamster php artisan play:hamster
 ```
+
+### Contribute
+Contributions are welcome! Please follow these steps to contribute:
+
+1. Fork the repository.
+2. Create a new branch (`git checkout -b feature-branch`).
+3. Make your changes.
+4. Commit your changes (`git commit -m 'Add some feature'`).
+5. Push to the branch (`git push origin feature-branch`).
+6. Create a new Pull Request.
+
+Please make sure to update tests as appropriate.
+
+### License
+This project is licensed under the MIT License.
+
 
 ### Disclaimer 
 This project is intended for educational and personal use only. Using this automation tool in the Hamster Kombat Game might violate the game's terms of service. Use at your own risk. The developers of this project are not responsible for any consequences, including but not limited to being banned from the game.

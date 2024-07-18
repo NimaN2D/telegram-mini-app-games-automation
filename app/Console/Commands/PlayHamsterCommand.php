@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Pipes\Hamster\Authenticate;
 use App\Pipes\Hamster\EvaluateAndBuyUpgrades;
 use App\Pipes\Hamster\HandleBoosts;
+use App\Pipes\Hamster\HandleStreakDaysTask;
 use App\Pipes\Hamster\HandleTaps;
 use App\Pipes\Hamster\Sync;
 use Illuminate\Console\Command;
@@ -36,6 +37,7 @@ class PlayHamsterCommand extends Command
                 ->send($this->hamsterService)
                 ->through([
                     Authenticate::class,
+                    HandleStreakDaysTask::class,
                     Sync::class,
                     HandleBoosts::class,
                     HandleTaps::class,

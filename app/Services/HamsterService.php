@@ -86,7 +86,10 @@ class HamsterService
 
     public function buyBoost(string $boostId): array
     {
-        return $this->postAndLogResponse("/clicker/buy-boost", ['boostId' => $boostId]);
+        return $this->postAndLogResponse("/clicker/buy-boost", [
+            'boostId' => $boostId,
+            'timestamp' => time()
+        ]);
     }
 
     public function handleBoosts(array $boosts): void
@@ -130,6 +133,25 @@ class HamsterService
         }
 
         Log::info('Purchased Upgrades', ['upgrades' => $this->purchasedUpgrades]);
+    }
+
+    public function handleStreakDaysTask(): void
+    {
+        $tasks = $this->getDailyTasks();
+
+        foreach ($tasks as $task) {
+            if ($task['id'] === 'streak_days' && !$task['isCompleted']) {
+                $this->postAndLogResponse("/clicker/check-task", [
+                    'taskId' => $task['id']
+                ]);
+                Log::info("Completed streak_days task", ['taskId' => $task['id']]);
+            }
+        }
+    }
+
+    private function getDailyTasks(): array
+    {
+        return $this->getResponseData("/clicker/list-tasks", 'tasks');
     }
 
     private function purchaseDependency(array $condition, float &$budget): bool
@@ -192,6 +214,10 @@ class HamsterService
                 }
             }
 
+            if (isset($upgrade['cooldownSeconds']) && $upgrade['cooldownSeconds'] > 0) {
+                continue;
+            }
+
             if ($upgrade['isAvailable'] === false || $upgrade['isExpired'] === true) {
                 continue;
             }
@@ -246,7 +272,6 @@ class HamsterService
 
         return $validUpgrades;
     }
-
 
     private function getHeaders(): array
     {
