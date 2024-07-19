@@ -17,7 +17,7 @@ class HandleUpgrades
 
         $this->purchaseUpgrades($hamsterService, $validUpgrades, $finalBudget);
 
-        Log::info('Purchased Upgrades', ['upgrades' => $hamsterService->purchasedUpgrades]);
+        Log::info('Hamster | Purchased Upgrades', ['upgrades' => $hamsterService->purchasedUpgrades]);
 
         return $next($hamsterService);
     }
@@ -124,7 +124,7 @@ class HandleUpgrades
                 $potentialValue = $bestPotentialUpgrade['profitPerHour'] / $bestPotentialUpgrade['price'];
 
                 if ($potentialValue > $currentValue * 2) {
-                    Log::info('Decided to wait for a better upgrade', ['upgrade' => $bestPotentialUpgrade]);
+                    Log::info('Hamster | Decided to wait for a better upgrade', ['upgrade' => $bestPotentialUpgrade]);
                 }
             }
         }

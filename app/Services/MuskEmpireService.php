@@ -5,22 +5,17 @@ namespace App\Services;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class HamsterService
+class MuskEmpireService
 {
     protected string $baseUrl;
-    protected ?string $authToken = null;
+    protected ?string $apiKey = null;
     public array $syncData = [];
     public array $upgradesForBuy = [];
     public array $purchasedUpgrades = [];
 
     public function __construct()
     {
-        $this->baseUrl = 'https://api.hamsterkombatgame.io';
-    }
-
-    public function setAuthToken(string $authToken): void
-    {
-        $this->authToken = $authToken;
+        $this->baseUrl = 'https://api.muskempire.io';
     }
 
     public function setSyncData(array $syncData): void
@@ -28,14 +23,21 @@ class HamsterService
         $this->syncData = $syncData;
     }
 
+    public function setApiKey(string $apiKey): void
+    {
+        $this->apiKey = $apiKey;
+    }
+
     public function getHeaders(): array
     {
         $headers = [
-            'User-Agent' => 'Mozilla/5.0 (Linux; Android 10; Mobile; rv:91.0) Gecko/91.0 Firefox/91.0'
+            'User-Agent' => 'Mozilla/5.0 (Linux; Android 10; Mobile; rv:91.0) Gecko/91.0 Firefox/91.0',
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json',
         ];
 
-        if (!empty($this->authToken)) {
-            $headers['Authorization'] = "Bearer {$this->authToken}";
+        if($this->apiKey) {
+            $headers['Api-Key'] = $this->apiKey;
         }
 
         return $headers;
@@ -44,7 +46,7 @@ class HamsterService
     public function getResponseData(string $url, string $propertyName): array
     {
         $response = $this->postAndLogResponse($url);
-        return $response[$propertyName];
+        return $response['data'][$propertyName];
     }
 
     public function postAndLogResponse(string $url, ?array $data = null): array
@@ -55,7 +57,7 @@ class HamsterService
             return $response->json();
         }
 
-        Log::error("$url failed", ['status' => $response->status(), 'body' => $response->body()]);
+        Log::error("MuskEmpire | $url failed", ['status' => $response->status(), 'body' => $response->body()]);
         throw new \Exception("$url failed");
     }
 }

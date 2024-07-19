@@ -1,6 +1,6 @@
-# Hamster Kombat Game Automation
+# Telegram Mini App Games Automation
 
-This Laravel 11 project automates the Hamster Kombat Game by handling taps and purchasing upgrades based on the configured strategies.
+This Laravel 11 project automates the Hamster Kombat and Musk Empire Games by handling taps and purchasing upgrades (improvements) based on the configured strategies.
 
 ## Setup Instructions
 
@@ -12,8 +12,8 @@ This Laravel 11 project automates the Hamster Kombat Game by handling taps and p
 
 1. **Clone the Repository:**
     ```bash
-    git clone https://github.com/NimaN2D/telegram-web-game-hamster-auto-play.git
-    cd telegram-web-game-hamster-auto-play
+    git clone https://github.com/NimaN2D/telegram-mini-app-games-automation.git
+    cd telegram-mini-app-games-automation
     ```
 
 2. **Install Dependencies:**
@@ -29,10 +29,16 @@ This Laravel 11 project automates the Hamster Kombat Game by handling taps and p
 
 4. **Set Environment Variables:**
     ```dotenv
-    HAMSTER_INIT_DATA_RAW=your_init_data_raw_here
-    HAMSTER_FINGERPRINT=your_fingerprint_json_here
-    HAMSTER_SPEND_PERCENTAGE=0.20
-    HAMSTER_MIN_BALANCE=100000000
+    # Hamster configuration
+    HAMSTER_INIT_DATA_RAW='INIT_DATA_RAW'
+    HAMSTER_FINGERPRINT='FINGERPRINT'
+    HAMSTER_SPEND_PERCENTAGE=100
+    HAMSTER_MIN_BALANCE=0
+    
+    # Musk Empire configuration
+    MUSK_EMPIRE_INIT_DATA='INIT_DATA'
+    MUSK_EMPIRE_SPEND_PERCENTAGE=100
+    MUSK_EMPIRE_MIN_BALANCE=0
     ```
 
    To obtain the `HAMSTER_INIT_DATA_RAW` and `HAMSTER_FINGERPRINT` variables, follow these steps:
@@ -51,6 +57,21 @@ This Laravel 11 project automates the Hamster Kombat Game by handling taps and p
     7. Tap one time in the game and then open the Developer Tools (`F12`) again. Go to the Network tab and look for a request named `auth-by-telegram-webapp`.
     8. From the payload of this request, copy the `initDataRaw` and `fingerprint` variables and set them in your `.env` file.
 
+   To obtain the `MUSK_EMPIRE_INIT_DATA` variable, follow these steps:
+
+    1. Open the Telegram web version in the Chrome browser on your desktop by navigating to [https://web.telegram.org/k](https://web.telegram.org/k) and log into your Telegram account.
+    2. Enter the Musk Empire bot by clicking on the link [@muskempire_bot](https://t.me/muskempire_bot).
+    3. Click on the "play" button to load the game. You will see a message indicating that the game can only be played on mobile.
+    4. Press `F12` on your keyboard to open the Chrome Developer Tools. Clear the Console by clicking on the icon that looks like a no-entry sign.
+    5. Copy and paste the following code into the Console and press Enter:
+        ```javascript
+        const iframe = document.getElementsByTagName('iframe')[0];
+        iframe.src = iframe.src.replace(/(tgWebAppPlatform=)[^&]+/, "$1android");
+        ```
+    6. After entering the code, you will be provided with a link. Copy this link and open it directly in your browser's address bar.
+    7. Tap one time in the game and then open the Developer Tools (`F12`) again. Go to the Network tab and look for a request named `auth`.
+    8. From the payload of this request, copy the `initData` variable and set it in your `.env` file.
+
 
 5. **Docker Setup:**
     ```bash
@@ -59,14 +80,15 @@ This Laravel 11 project automates the Hamster Kombat Game by handling taps and p
    
 6. **Install Dependencies:**
     ```bash
-   docker-compose exec hamster composer install
+   docker-compose exec game-automation composer install
    ```
 
 ### Usage
 The service will start automatically when the Docker containers are up. If you need to manually run the command to play the game, use:
 
 ```bash
-docker-compose exec hamster php artisan play:hamster
+docker-compose exec game-automation php artisan play:hamster
+docker-compose exec game-automation php artisan play:musk-empire
 ```
 
 ### Contribute

@@ -25,7 +25,7 @@ class HandleTaps
             $totalTaps += ($count * $earnPerTap);
         }
 
-        Log::info("Total Taps Made: {$totalTaps}");
+        Log::info("Hamster | Total Taps Made: {$totalTaps}");
 
         return $next($hamsterService);
     }

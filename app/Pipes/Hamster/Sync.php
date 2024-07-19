@@ -14,7 +14,7 @@ class Sync
             $syncData = $hamsterService->postAndLogResponse('/clicker/sync');
             $hamsterService->setSyncData($syncData);
         } catch (\Exception $e) {
-            Log::error('Sync failed', ['exception' => $e]);
+            Log::error('Hamster | Sync failed', ['exception' => $e]);
             throw new \Exception('Sync failed');
         }
 

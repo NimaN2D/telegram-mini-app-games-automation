@@ -16,7 +16,7 @@ class HandleStreakDaysTask
                 $hamsterService->postAndLogResponse('/clicker/check-task', [
                     'taskId' => $task['id']
                 ]);
-                Log::info("Completed streak_days task", ['taskId' => $task['id']]);
+                Log::info("Hamster | Completed streak_days task", ['taskId' => $task['id']]);
             }
         }
 
