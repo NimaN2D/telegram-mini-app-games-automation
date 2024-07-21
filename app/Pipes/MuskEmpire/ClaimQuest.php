@@ -4,7 +4,9 @@ namespace App\Pipes\MuskEmpire;
 
 use App\Services\MuskEmpireService;
 use Closure;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class ClaimQuest
 {
@@ -12,14 +14,20 @@ class ClaimQuest
     {
         $this->initializeQuests($empireService);
 
-        $quests = $empireService->syncData['quests'] ?? [];
-        foreach ($quests as $quest) {
-            if (! $quest['isRewarded'] && $this->canClaimQuest($empireService, $quest['key'])) {
-                $dbQuest = $this->getDbQuest($empireService, $quest['key']);
-                if ($dbQuest && $this->shouldPurchaseImprovement($dbQuest)) {
+        $dbQuests = $empireService->syncData['dbQuests'] ?? [];
+        $claimedQuests = $empireService->syncData['quests'] ?? [];
+        foreach ($dbQuests as $dbQuest) {
+            $isClaimed = Arr::first($claimedQuests, function ($value) use ($dbQuest) {
+                return $value['key'] === $dbQuest['key'] && $value['isRewarded'] === true;
+            });
+            if ($isClaimed) {
+                continue;
+            }
+            if ($this->canClaimQuest($empireService, $dbQuest)) {
+                if ($this->shouldPurchaseImprovement($dbQuest)) {
                     $this->purchaseImprovement($empireService, $dbQuest);
-                } elseif (! $this->shouldPurchaseImprovement($dbQuest)) {
-                    $this->claimQuest($empireService, $quest['key']);
+                } else {
+                    $this->claimQuest($empireService, $dbQuest);
                 }
             }
         }
@@ -32,33 +40,40 @@ class ClaimQuest
         $empireService->syncData['dbQuests'] = $empireService->getResponseData('/dbs', 'dbQuests');
     }
 
-    private function canClaimQuest(MuskEmpireService $empireService, string $questKey): bool
+    private function canClaimQuest(MuskEmpireService $empireService, array $dbQuest): bool
     {
-        $quests = $empireService->syncData['dbQuests'] ?? [];
-        foreach ($quests as $quest) {
-            if ($quest['key'] === $questKey) {
-                if ($quest['requiredLevel'] > $empireService->syncData['hero']['level']) {
-                    return false;
-                }
+        if (Str::contains($dbQuest['title'], 'Invest')) {
+            return false;
+        }
 
-                if ($quest['needCheck'] && $quest['checkType'] !== 'improve') {
-                    return $this->validateAction($quest['checkType'], $quest['checkData']);
-                }
+        if (in_array($dbQuest['actionText'], ['Subscribe', 'Invite friends', 'Go to Negotiations', '', 'Sign Up', 'Complete KYC', 'Make a Deposit', 'Follow'])) {
+            return false;
+        }
 
+        if ($dbQuest['isArchived'] === true) {
+            return false;
+        }
+
+        if ($dbQuest['requiredLevel'] > $empireService->syncData['hero']['level']) {
+            return false;
+        }
+
+        if ($dbQuest['needCheck']) {
+            if ($dbQuest['checkType'] === 'checkCode') {
                 return true;
+            }
+
+            if ($dbQuest['checkType'] !== 'improve') {
+                return $this->validateAction($dbQuest['checkType'], $dbQuest['checkData']);
             }
         }
 
-        return false;
+        return true;
     }
 
     private function validateAction(string $checkType, string $checkData): bool
     {
-        if ($checkType === 'telegramChannel') {
-            return true;
-        }
-
-        if ($checkType === 'fakeCheck') {
+        if ($checkType === 'telegramChannel' || $checkType === 'fakeCheck') {
             return true;
         }
 
@@ -81,26 +96,14 @@ class ClaimQuest
         }
     }
 
-    private function claimQuest(MuskEmpireService $empireService, string $questKey): void
+    private function claimQuest(MuskEmpireService $empireService, array $dbQuest): void
     {
-        $payload = ['data' => [$questKey, null]];
+        $payload = ['data' => [$dbQuest['key'], $dbQuest['checkData'] ?? null]];
 
         try {
-            $response = $empireService->postAndLogResponse('/quests/claim', $payload);
+            $empireService->postAndLogResponse('/quests/claim', $payload);
         } catch (\Exception $e) {
-            Log::error('MuskEmpire | Failed to claim quest', ['quest' => $questKey, 'error' => $e->getMessage()]);
+            Log::error('MuskEmpire | Failed to claim quest', ['quest' => $dbQuest['key'], 'error' => $e->getMessage()]);
         }
-    }
-
-    private function getDbQuest(MuskEmpireService $empireService, string $questKey): ?array
-    {
-        $dbQuests = $empireService->syncData['dbQuests'] ?? [];
-        foreach ($dbQuests as $dbQuest) {
-            if ($dbQuest['key'] === $questKey) {
-                return $dbQuest;
-            }
-        }
-
-        return null;
     }
 }
