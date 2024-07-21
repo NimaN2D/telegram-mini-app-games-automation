@@ -9,11 +9,11 @@ class Authenticate
 {
     public function handle(MuskEmpireService $empireService, Closure $next)
     {
-        $r = $empireService->postAndLogResponse('/telegram/auth', [
+        $empireService->postAndLogResponse('/telegram/auth', [
             'data' => [
                 'initData' => config('muskempire.init_data'),
-                'platform' => 'android'
-            ]
+                'platform' => 'android',
+            ],
         ]);
 
         parse_str(config('muskempire.init_data'), $params);

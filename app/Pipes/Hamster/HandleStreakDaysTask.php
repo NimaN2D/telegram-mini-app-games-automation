@@ -2,8 +2,8 @@
 
 namespace App\Pipes\Hamster;
 
-use Closure;
 use App\Services\HamsterService;
+use Closure;
 use Illuminate\Support\Facades\Log;
 
 class HandleStreakDaysTask
@@ -12,11 +12,11 @@ class HandleStreakDaysTask
     {
         $tasks = $hamsterService->getResponseData('/clicker/list-tasks', 'tasks');
         foreach ($tasks as $task) {
-            if ($task['id'] === 'streak_days' && !$task['isCompleted']) {
+            if ($task['id'] === 'streak_days' && ! $task['isCompleted']) {
                 $hamsterService->postAndLogResponse('/clicker/check-task', [
-                    'taskId' => $task['id']
+                    'taskId' => $task['id'],
                 ]);
-                Log::info("Hamster | Completed streak_days task", ['taskId' => $task['id']]);
+                Log::info('Hamster | Completed streak_days task', ['taskId' => $task['id']]);
             }
         }
 

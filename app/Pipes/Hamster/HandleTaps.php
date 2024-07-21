@@ -2,8 +2,8 @@
 
 namespace App\Pipes\Hamster;
 
-use Closure;
 use App\Services\HamsterService;
+use Closure;
 use Illuminate\Support\Facades\Log;
 
 class HandleTaps
@@ -19,7 +19,7 @@ class HandleTaps
             $tapResult = $hamsterService->postAndLogResponse('/clicker/tap', [
                 'count' => $count,
                 'availableTaps' => $availableTaps,
-                'timestamp' => time()
+                'timestamp' => time(),
             ]);
             $availableTaps -= ($count * $earnPerTap);
             $totalTaps += ($count * $earnPerTap);

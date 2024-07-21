@@ -2,8 +2,8 @@
 
 namespace App\Pipes\Hamster;
 
-use Closure;
 use App\Services\HamsterService;
+use Closure;
 use Illuminate\Support\Facades\Log;
 
 class Sync

@@ -2,8 +2,8 @@
 
 namespace App\Pipes\Hamster;
 
-use Closure;
 use App\Services\HamsterService;
+use Closure;
 use Illuminate\Support\Facades\Log;
 
 class HandleUpgrades
@@ -69,16 +69,17 @@ class HandleUpgrades
             return false;
         }
 
-        if (!$upgrade['isAvailable'] || $upgrade['isExpired']) {
+        if (! $upgrade['isAvailable'] || $upgrade['isExpired']) {
             return false;
         }
 
-        if ($upgrade['price'] == 0 && !isset($upgrade['condition'])) {
+        if ($upgrade['price'] == 0 && ! isset($upgrade['condition'])) {
             $this->purchaseUpgrade($hamsterService, $upgrade['id']);
+
             return false;
         }
 
-        if (isset($upgrade['condition']) && !$this->validateCondition($hamsterService, $upgrade['condition'], $finalBudget)) {
+        if (isset($upgrade['condition']) && ! $this->validateCondition($hamsterService, $upgrade['condition'], $finalBudget)) {
             return false;
         }
 
@@ -105,20 +106,20 @@ class HandleUpgrades
     {
         $hamsterService->postAndLogResponse('/clicker/buy-upgrade', [
             'upgradeId' => $upgradeId,
-            'timestamp' => time()
+            'timestamp' => time(),
         ]);
         $hamsterService->purchasedUpgrades[] = $upgradeId;
     }
 
     private function logBestPotentialUpgrade(array $validUpgrades, array $potentialUpgrades): void
     {
-        if (!empty($potentialUpgrades)) {
+        if (! empty($potentialUpgrades)) {
             usort($potentialUpgrades, function ($a, $b) {
                 return ($b['profitPerHour'] / $b['price']) <=> ($a['profitPerHour'] / $a['price']);
             });
 
             $bestPotentialUpgrade = $potentialUpgrades[0];
-            if (!empty($validUpgrades)) {
+            if (! empty($validUpgrades)) {
                 $bestCurrentUpgrade = $validUpgrades[0];
                 $currentValue = $bestCurrentUpgrade['profitPerHour'] / $bestCurrentUpgrade['price'];
                 $potentialValue = $bestPotentialUpgrade['profitPerHour'] / $bestPotentialUpgrade['price'];
@@ -132,7 +133,7 @@ class HandleUpgrades
 
     private function validateCondition(HamsterService $hamsterService, array $condition, float &$budget): bool
     {
-        if (!isset($condition['upgradeId'], $condition['level'], $condition['_type']) || $condition['_type'] !== 'ByUpgrade') {
+        if (! isset($condition['upgradeId'], $condition['level'], $condition['_type']) || $condition['_type'] !== 'ByUpgrade') {
             return false;
         }
 
@@ -157,7 +158,7 @@ class HandleUpgrades
             return false;
         }
 
-        if (!$upgrade['isAvailable'] || $upgrade['isExpired'] || $upgrade['price'] > $budget) {
+        if (! $upgrade['isAvailable'] || $upgrade['isExpired'] || $upgrade['price'] > $budget) {
             return false;
         }
 
@@ -169,7 +170,7 @@ class HandleUpgrades
             return true;
         }
 
-        if (isset($upgrade['condition']) && !$this->validateCondition($hamsterService, $upgrade['condition'], $budget)) {
+        if (isset($upgrade['condition']) && ! $this->validateCondition($hamsterService, $upgrade['condition'], $budget)) {
             return false;
         }
 

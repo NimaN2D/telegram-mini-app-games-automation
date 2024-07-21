@@ -2,8 +2,8 @@
 
 namespace App\Pipes\Hamster;
 
-use Closure;
 use App\Services\HamsterService;
+use Closure;
 
 class HandleBoosts
 {
@@ -14,10 +14,11 @@ class HandleBoosts
             if ($boost['id'] === 'BoostFullAvailableTaps' && $boost['cooldownSeconds'] === 0) {
                 $hamsterService->postAndLogResponse('/clicker/buy-boost', [
                     'boostId' => $boost['id'],
-                    'timestamp' => time()
+                    'timestamp' => time(),
                 ]);
             }
         }
+
         return $next($hamsterService);
     }
 }

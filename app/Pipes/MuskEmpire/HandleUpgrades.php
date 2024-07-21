@@ -2,8 +2,8 @@
 
 namespace App\Pipes\MuskEmpire;
 
-use Closure;
 use App\Services\MuskEmpireService;
+use Closure;
 use Illuminate\Support\Facades\Log;
 
 class HandleUpgrades
@@ -82,7 +82,7 @@ class HandleUpgrades
 
         $nextLevelRequirements = $this->getLevelRequirements($upgrade['levels'], $nextLevel);
 
-        if ($nextLevelRequirements && !$this->validateRequiredSkills($muskEmpireService, $nextLevelRequirements['requiredSkills'])) {
+        if ($nextLevelRequirements && ! $this->validateRequiredSkills($muskEmpireService, $nextLevelRequirements['requiredSkills'])) {
             return false;
         }
 
@@ -112,6 +112,7 @@ class HandleUpgrades
                 return $levelData;
             }
         }
+
         return null;
     }
 
@@ -122,6 +123,7 @@ class HandleUpgrades
                 return false;
             }
         }
+
         return true;
     }
 
@@ -133,6 +135,7 @@ class HandleUpgrades
         switch ($upgrade['priceFormula']) {
             case 'fnCompound':
                 $increaseFactor = $percentageIncrease / 100;
+
                 return $this->roundUpPrice($basePrice * pow(1 + $increaseFactor, $level - 1));
             case 'fnLinear':
                 return $this->roundUpPrice($basePrice + $percentageIncrease * ($level - 1));
@@ -184,9 +187,11 @@ class HandleUpgrades
                     $profitIncrement = $profitBasic + $profitFormulaK * ($i - 1);
                     $totalProfit += $profitIncrement;
                 }
+
                 return $totalProfit;
             case 'fnCompound':
                 $increaseFactor = $profitFormulaK / 100;
+
                 return $profitBasic * pow(1 + $increaseFactor, $level - 1);
             case 'fnLinear':
                 return $profitBasic + $profitFormulaK * ($level - 1);
@@ -218,20 +223,20 @@ class HandleUpgrades
     private function purchaseUpgrade(MuskEmpireService $muskEmpireService, string $upgradeKey): void
     {
         $muskEmpireService->postAndLogResponse('/skills/improve', [
-            'data' => $upgradeKey
+            'data' => $upgradeKey,
         ]);
         $muskEmpireService->purchasedUpgrades[] = $upgradeKey;
     }
 
     private function logBestPotentialUpgrade(array $validUpgrades, array $potentialUpgrades): void
     {
-        if (!empty($potentialUpgrades)) {
+        if (! empty($potentialUpgrades)) {
             usort($potentialUpgrades, function ($a, $b) {
                 return ($b['profitNextLevel'] / $b['priceNextLevel']) <=> ($a['profitNextLevel'] / $a['priceNextLevel']);
             });
 
             $bestPotentialUpgrade = $potentialUpgrades[0];
-            if (!empty($validUpgrades)) {
+            if (! empty($validUpgrades)) {
                 $bestCurrentUpgrade = $validUpgrades[0];
                 $currentValue = $bestCurrentUpgrade['profitNextLevel'] / $bestCurrentUpgrade['priceNextLevel'];
                 $potentialValue = $bestPotentialUpgrade['profitNextLevel'] / $bestPotentialUpgrade['priceNextLevel'];

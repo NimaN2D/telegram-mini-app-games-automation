@@ -14,11 +14,11 @@ class ClaimQuest
 
         $quests = $empireService->syncData['quests'] ?? [];
         foreach ($quests as $quest) {
-            if (!$quest['isRewarded'] && $this->canClaimQuest($empireService, $quest['key'])) {
+            if (! $quest['isRewarded'] && $this->canClaimQuest($empireService, $quest['key'])) {
                 $dbQuest = $this->getDbQuest($empireService, $quest['key']);
                 if ($dbQuest && $this->shouldPurchaseImprovement($dbQuest)) {
                     $this->purchaseImprovement($empireService, $dbQuest);
-                } elseif (!$this->shouldPurchaseImprovement($dbQuest)) {
+                } elseif (! $this->shouldPurchaseImprovement($dbQuest)) {
                     $this->claimQuest($empireService, $quest['key']);
                 }
             }
@@ -74,10 +74,10 @@ class ClaimQuest
     {
         try {
             $empireService->postAndLogResponse('/skills/improve', [
-                'data' => [$dbQuest['checkData'], null]
+                'data' => [$dbQuest['checkData'], null],
             ]);
         } catch (\Exception $e) {
-            Log::error("MuskEmpire | Failed to purchase improvement", ['quest' => $dbQuest['key'], 'error' => $e->getMessage()]);
+            Log::error('MuskEmpire | Failed to purchase improvement', ['quest' => $dbQuest['key'], 'error' => $e->getMessage()]);
         }
     }
 
@@ -88,7 +88,7 @@ class ClaimQuest
         try {
             $response = $empireService->postAndLogResponse('/quests/claim', $payload);
         } catch (\Exception $e) {
-            Log::error("MuskEmpire | Failed to claim quest", ['quest' => $questKey, 'error' => $e->getMessage()]);
+            Log::error('MuskEmpire | Failed to claim quest', ['quest' => $questKey, 'error' => $e->getMessage()]);
         }
     }
 
@@ -100,6 +100,7 @@ class ClaimQuest
                 return $dbQuest;
             }
         }
+
         return null;
     }
 }

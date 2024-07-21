@@ -15,20 +15,21 @@ class HandleTaps
         $totalTaps = 0;
 
         while ($availableTaps > 0) {
-            sleep(mt_rand(1,3));
+            sleep(mt_rand(1, 3));
             $count = min($availableTaps, rand(45, 160));
             $availableTaps -= ($count * $earnPerTap);
             $tapResult = $muskEmpireService->postAndLogResponse('/hero/action/tap', [
-                "data" => [
-                    "data" => [
-                        "task" => [
-                            "amount" => $count,
-                            "currentEnergy" => $availableTaps
-                        ]
+                'data' => [
+                    'data' => [
+                        'task' => [
+                            'amount' => $count,
+                            'currentEnergy' => $availableTaps,
+                        ],
                     ],
-                    "seconds" => mt_rand(3, 13)
-                ]
+                    'seconds' => mt_rand(3, 13),
+                ],
             ]);
+
             $totalTaps += ($count * $earnPerTap);
         }
 
