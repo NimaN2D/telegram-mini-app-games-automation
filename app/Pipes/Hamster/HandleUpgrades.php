@@ -154,6 +154,10 @@ class HandleUpgrades
             return false;
         }
 
+        if ($upgrade['level'] === $upgrade['maxLevel']) {
+            return false;
+        }
+
         if (isset($upgrade['cooldownSeconds']) && $upgrade['cooldownSeconds'] > 0) {
             return false;
         }
