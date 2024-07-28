@@ -65,6 +65,10 @@ class HandleUpgrades
 
     private function isUpgradeValid(HamsterService $hamsterService, array $upgrade, float $finalBudget): bool
     {
+        if (isset($upgrade['maxLevel']) && $upgrade['level'] === $upgrade['maxLevel']) {
+            return false;
+        }
+
         if (isset($upgrade['cooldownSeconds']) && $upgrade['cooldownSeconds'] > 0) {
             return false;
         }
