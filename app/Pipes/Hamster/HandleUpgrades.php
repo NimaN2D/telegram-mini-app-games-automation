@@ -154,7 +154,7 @@ class HandleUpgrades
             return false;
         }
 
-        if ($upgrade['level'] === $upgrade['maxLevel']) {
+        if (isset($upgrade['maxLevel']) && $upgrade['level'] === $upgrade['maxLevel']) {
             return false;
         }
 
