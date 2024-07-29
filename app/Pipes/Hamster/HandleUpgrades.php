@@ -65,7 +65,11 @@ class HandleUpgrades
 
     private function isUpgradeValid(HamsterService $hamsterService, array $upgrade, float $finalBudget): bool
     {
-        if (isset($upgrade['maxLevel']) && $upgrade['level'] === $upgrade['maxLevel']) {
+        if (isset($upgrade['maxLevel']) && $upgrade['maxLevel'] > $upgrade['level']) {
+            return false;
+        }
+
+        if ((array_key_exists('profitPerHourDelta', $upgrade) && $upgrade['profitPerHourDelta'] == 0)) {
             return false;
         }
 
@@ -158,7 +162,7 @@ class HandleUpgrades
             return false;
         }
 
-        if (isset($upgrade['maxLevel']) && $upgrade['level'] === $upgrade['maxLevel']) {
+        if (isset($upgrade['maxLevel']) && $upgrade['level'] >= $upgrade['maxLevel']) {
             return false;
         }
 
